@@ -29,14 +29,22 @@
   color: #212529;
 }
 
-.refresh-btn {
+.todo-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.refresh-btn,
+.disconnect-btn {
   font-size: 18px;
   padding: 4px;
   border-radius: 8px;
   transition: background 0.15s;
 }
 
-.refresh-btn:hover {
+.refresh-btn:hover,
+.disconnect-btn:hover {
   background: #f1f3f5;
 }
 

@@ -15,6 +15,7 @@ export default function TodoList({
   onStatusChange,
   onOpenPage,
   onRefresh,
+  onDisconnect,
   isLoading,
   error,
 }) {
@@ -23,14 +24,25 @@ export default function TodoList({
       {/* Header */}
       <div className="todo-header">
         <h2 className="todo-title">Laon Focus</h2>
-        <button
-          className={`refresh-btn ${isLoading ? 'spinning' : ''}`}
-          onClick={onRefresh}
-          disabled={isLoading}
-          title="새로고침"
-        >
-          🔄
-        </button>
+        <div className="todo-header-actions">
+          <button
+            className={`refresh-btn ${isLoading ? 'spinning' : ''}`}
+            onClick={onRefresh}
+            disabled={isLoading}
+            title="새로고침"
+          >
+            🔄
+          </button>
+          {onDisconnect && (
+            <button
+              className="disconnect-btn"
+              onClick={onDisconnect}
+              title="Notion 연결 해제"
+            >
+              ⚙️
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Filter tabs */}
