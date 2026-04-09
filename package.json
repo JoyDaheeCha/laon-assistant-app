@@ -19,9 +19,18 @@
       "target": "dmg",
       "icon": "public/laon_icon.png"
     },
+    "win": {
+      "target": "nsis",
+      "icon": "public/laon_icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false
+    },
     "files": [
       "src/electron.js",
       "src/preload.js",
+      "src/auth/**/*",
       "build/**/*"
     ],
     "directories": {
