@@ -1,17 +1,31 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import LaonMascot from './LaonMascot';
 import TodoList from './TodoList';
+import SetupScreen from './SetupScreen';
 import { filterAndSort } from '../utils/filter';
 import '../styles/app.css';
 
 const STATUS_CYCLE = ['Not started', 'In progress', 'Done'];
 
 export default function App() {
+  const [authState, setAuthState] = useState('loading'); // loading | setup | ready
   const [todos, setTodos] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [filter, setFilter] = useState('all'); // all | active | done
+  const [filter, setFilter] = useState('all');
   const [error, setError] = useState(null);
+
+  // Check auth status on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const status = await window.laonAPI.getAuthStatus();
+        setAuthState(status.configured ? 'ready' : 'setup');
+      } catch {
+        setAuthState('setup');
+      }
+    })();
+  }, []);
 
   const fetchTodos = useCallback(async () => {
     setIsLoading(true);
@@ -20,7 +34,7 @@ export default function App() {
       const data = await window.laonAPI.getTodos();
       setTodos(data);
     } catch (err) {
-      setError('Notion 연결 실패! 토큰을 확인해주세요.');
+      setError('Notion 연결 실패! 설정을 확인해주세요.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -28,16 +42,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    fetchTodos();
-  }, [fetchTodos]);
+    if (authState === 'ready') fetchTodos();
+  }, [authState, fetchTodos]);
 
   useEffect(() => {
     if (!window.laonAPI?.onWindowBlur) return;
-    const cleanup = window.laonAPI.onWindowBlur(() => {
-      // Don't auto-close on blur for better UX
-    });
+    const cleanup = window.laonAPI.onWindowBlur(() => {});
     return cleanup;
   }, []);
+
+  const handleSetupComplete = () => {
+    setAuthState('ready');
+  };
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
@@ -51,14 +67,12 @@ export default function App() {
     const currentIndex = STATUS_CYCLE.indexOf(todo.status);
     const nextStatus = STATUS_CYCLE[(currentIndex + 1) % STATUS_CYCLE.length];
 
-    // Optimistic update
     setTodos((prev) =>
       prev.map((t) => (t.id === id ? { ...t, status: nextStatus } : t))
     );
 
     const result = await window.laonAPI.updateStatus(id, nextStatus);
     if (!result.success) {
-      // Revert on failure
       setTodos((prev) =>
         prev.map((t) => (t.id === id ? { ...t, status: todo.status } : t))
       );
@@ -69,17 +83,34 @@ export default function App() {
     window.laonAPI.openPage(url);
   };
 
-  const filteredTodos = filterAndSort(todos, filter);
+  const handleDisconnect = async () => {
+    await window.laonAPI.logout();
+    setTodos([]);
+    setIsOpen(false);
+    setAuthState('setup');
+  };
 
+  const filteredTodos = filterAndSort(todos, filter);
   const activeTodoCount = todos.filter((t) => t.status !== 'Done').length;
 
-  // Click-through: UI 요소 위에서만 클릭 가능, 나머지는 투과
   const handleMouseEnterUI = () => {
     window.laonAPI?.setIgnoreMouse(false);
   };
   const handleMouseLeaveUI = () => {
     window.laonAPI?.setIgnoreMouse(true);
   };
+
+  if (authState === 'loading') return null;
+
+  if (authState === 'setup') {
+    return (
+      <div className="app-container">
+        <div onMouseEnter={handleMouseEnterUI} onMouseLeave={handleMouseLeaveUI}>
+          <SetupScreen onComplete={handleSetupComplete} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
@@ -99,6 +130,7 @@ export default function App() {
             onStatusChange={handleStatusChange}
             onOpenPage={handleOpenPage}
             onRefresh={fetchTodos}
+            onDisconnect={handleDisconnect}
             isLoading={isLoading}
             error={error}
           />
