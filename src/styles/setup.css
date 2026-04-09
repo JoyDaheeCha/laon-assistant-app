@@ -1,0 +1,154 @@
+.setup-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  background: rgba(26, 26, 46, 0.95);
+  border-radius: 20px;
+  margin: 16px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.setup-mascot {
+  width: 120px;
+  height: auto;
+  margin-bottom: 16px;
+  animation: setup-bounce 2s ease-in-out infinite;
+}
+
+@keyframes setup-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.setup-title {
+  color: #fff;
+  font-size: 20px;
+  margin: 0 0 8px 0;
+}
+
+.setup-desc {
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.setup-connect-btn {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.setup-connect-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(108, 92, 231, 0.4);
+}
+
+.setup-connect-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.setup-error {
+  background: rgba(244, 67, 54, 0.15);
+  color: #ff6b6b;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.setup-loading {
+  color: #aaa;
+  padding: 24px;
+}
+
+.setup-loading .loading-cat {
+  font-size: 32px;
+  display: block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.setup-empty {
+  color: #aaa;
+  padding: 16px;
+}
+
+.setup-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.setup-retry-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.setup-retry-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.setup-db-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.setup-db-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.setup-db-item:hover {
+  background: rgba(108, 92, 231, 0.2);
+  border-color: rgba(108, 92, 231, 0.5);
+}
+
+.db-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.db-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
