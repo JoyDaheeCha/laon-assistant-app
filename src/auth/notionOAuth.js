@@ -7,6 +7,8 @@ const NOTION_TOKEN_URL = 'https://api.notion.com/v1/oauth/token';
 const CALLBACK_PORT = 19847;
 const REDIRECT_URI = `http://localhost:${CALLBACK_PORT}/notion/callback`;
 
+let activeServer = null;
+
 function getOAuthConfig() {
   const clientId = process.env.NOTION_OAUTH_CLIENT_ID;
   const clientSecret = process.env.NOTION_OAUTH_CLIENT_SECRET;
@@ -16,8 +18,18 @@ function getOAuthConfig() {
   return { clientId, clientSecret };
 }
 
+function cancelOAuthFlow() {
+  if (activeServer) {
+    activeServer.close();
+    activeServer = null;
+  }
+}
+
 function startOAuthFlow() {
   const { clientId } = getOAuthConfig();
+
+  // Cancel any existing flow
+  cancelOAuthFlow();
 
   return new Promise((resolve, reject) => {
     const server = http.createServer(async (req, res) => {
@@ -34,7 +46,7 @@ function startOAuthFlow() {
       if (error || !code) {
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(buildResultPage(false, '연결이 취소되었습니다.'));
-        server.close();
+        cleanup();
         reject(new Error(error || 'No authorization code received'));
         return;
       }
@@ -48,15 +60,28 @@ function startOAuthFlow() {
 
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(buildResultPage(true, `${tokenData.workspace_name} 워크스페이스에 연결되었습니다!`));
-        server.close();
+        cleanup();
         resolve(tokenData);
       } catch (err) {
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(buildResultPage(false, '토큰 교환에 실패했습니다.'));
-        server.close();
+        cleanup();
         reject(err);
       }
     });
+
+    function cleanup() {
+      server.close();
+      activeServer = null;
+      clearTimeout(timer);
+    }
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('OAuth flow timed out'));
+    }, 5 * 60 * 1000);
+
+    activeServer = server;
 
     server.listen(CALLBACK_PORT, () => {
       const authUrl = `${NOTION_AUTH_URL}?client_id=${clientId}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&owner=user`;
@@ -64,14 +89,10 @@ function startOAuthFlow() {
     });
 
     server.on('error', (err) => {
+      activeServer = null;
+      clearTimeout(timer);
       reject(new Error(`OAuth callback server failed: ${err.message}`));
     });
-
-    // Timeout after 5 minutes
-    setTimeout(() => {
-      server.close();
-      reject(new Error('OAuth flow timed out'));
-    }, 5 * 60 * 1000);
   });
 }
 
@@ -116,4 +137,4 @@ function buildResultPage(success, message) {
 </html>`;
 }
 
-module.exports = { startOAuthFlow, REDIRECT_URI };
+module.exports = { startOAuthFlow, cancelOAuthFlow, REDIRECT_URI };

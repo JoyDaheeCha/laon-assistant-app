@@ -3,7 +3,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { Client } = require('@notionhq/client');
-const { startOAuthFlow } = require('./auth/notionOAuth');
+const { startOAuthFlow, cancelOAuthFlow } = require('./auth/notionOAuth');
 const credentialStore = require('./auth/store');
 
 function getNotionClient() {
@@ -96,35 +96,106 @@ ipcMain.handle('auth:start', async () => {
   }
 });
 
+ipcMain.handle('auth:cancel', () => {
+  cancelOAuthFlow();
+  return { success: true };
+});
+
 ipcMain.handle('auth:logout', () => {
   credentialStore.clearAll();
   return { success: true };
 });
 
-ipcMain.handle('db:list', async () => {
+ipcMain.handle('db:autoSetup', async () => {
   const notion = getNotionClient();
   if (!notion) return { success: false, error: 'Not authenticated' };
 
   try {
-    const response = await notion.search({
+    // 1. Check if a Laon database already exists
+    console.log('[autoSetup] Searching for existing Laon Focus TODO database...');
+    const existing = await notion.search({
+      query: 'Laon Focus TODO',
       filter: { value: 'database', property: 'object' },
-      sort: { direction: 'descending', timestamp: 'last_edited_time' },
     });
-    const databases = response.results.map((db) => ({
-      id: db.id,
-      title: db.title?.[0]?.plain_text || 'Untitled',
-      icon: db.icon?.emoji || '📋',
-    }));
-    return { success: true, databases };
+    const found = existing.results.find(
+      (db) => db.title?.[0]?.plain_text === 'Laon Focus TODO'
+    );
+    if (found) {
+      console.log('[autoSetup] Found existing database:', found.id);
+      credentialStore.saveDatabase(found.id, 'Laon Focus TODO');
+      return { success: true, databaseName: 'Laon Focus TODO' };
+    }
+
+    // 2. Find a shared page to use as parent
+    console.log('[autoSetup] No existing DB. Searching for shared pages...');
+    const pages = await notion.search({
+      filter: { value: 'page', property: 'object' },
+      sort: { direction: 'descending', timestamp: 'last_edited_time' },
+      page_size: 10,
+    });
+    console.log('[autoSetup] Found pages:', pages.results.length);
+
+    if (pages.results.length === 0) {
+      return {
+        success: false,
+        error: 'Notion 연결 시 페이지를 하나 이상 공유해주세요. 연결을 다시 시도해주세요.',
+      };
+    }
+
+    // Pick the first root-level page (no parent page) or fallback to first page
+    const rootPage = pages.results.find(
+      (p) => p.parent?.type === 'workspace'
+    ) || pages.results[0];
+    const parentPageId = rootPage.id;
+    console.log('[autoSetup] Using parent page:', parentPageId);
+
+    // 3. Create the Laon Focus TODO database
+    console.log('[autoSetup] Creating database...');
+    const db = await notion.databases.create({
+      parent: { page_id: parentPageId },
+      title: [{ text: { content: 'Laon Focus TODO' } }],
+      icon: { emoji: '🐱' },
+      properties: {
+        Name: { title: {} },
+        Status: {
+          status: {
+            options: [
+              { name: 'Not started', color: 'default' },
+              { name: 'In progress', color: 'blue' },
+              { name: 'Done', color: 'green' },
+            ],
+          },
+        },
+        Priority: {
+          select: {
+            options: [
+              { name: 'High', color: 'red' },
+              { name: 'Medium', color: 'yellow' },
+              { name: 'Low', color: 'green' },
+            ],
+          },
+        },
+        'Due Date': { date: {} },
+        Tags: {
+          multi_select: {
+            options: [
+              { name: 'work', color: 'blue' },
+              { name: 'study', color: 'purple' },
+              { name: 'health', color: 'green' },
+              { name: 'daily', color: 'orange' },
+            ],
+          },
+        },
+      },
+    });
+
+    console.log('[autoSetup] Database created:', db.id);
+    credentialStore.saveDatabase(db.id, 'Laon Focus TODO');
+    return { success: true, databaseName: 'Laon Focus TODO' };
   } catch (error) {
-    console.error('DB list error:', error.message);
+    console.error('[autoSetup] Error:', error.message);
     return { success: false, error: error.message };
   }
-});
-
-ipcMain.handle('db:select', (_event, { databaseId, databaseName }) => {
-  credentialStore.saveDatabase(databaseId, databaseName);
-  return { success: true };
 });
 
 // --- Notion IPC Handlers ---

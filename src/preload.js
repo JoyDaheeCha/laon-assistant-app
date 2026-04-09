@@ -4,12 +4,11 @@ contextBridge.exposeInMainWorld('laonAPI', {
   // Auth
   getAuthStatus: () => ipcRenderer.invoke('auth:status'),
   startAuth: () => ipcRenderer.invoke('auth:start'),
+  cancelAuth: () => ipcRenderer.invoke('auth:cancel'),
   logout: () => ipcRenderer.invoke('auth:logout'),
 
-  // Database selection
-  listDatabases: () => ipcRenderer.invoke('db:list'),
-  selectDatabase: (databaseId, databaseName) =>
-    ipcRenderer.invoke('db:select', { databaseId, databaseName }),
+  // Database
+  autoSetupDatabase: () => ipcRenderer.invoke('db:autoSetup'),
 
   // Todos
   getTodos: () => ipcRenderer.invoke('notion:getTodos'),
