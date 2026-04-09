@@ -1,0 +1,106 @@
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+
+.todo-item:hover {
+  background: #f8f9fa;
+}
+
+.todo-item.todo-done {
+  opacity: 0.55;
+}
+
+/* Status button */
+.status-btn {
+  font-size: 18px;
+  padding: 2px;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.status-btn:hover {
+  transform: scale(1.2);
+}
+
+.status-btn:active {
+  transform: scale(0.9);
+}
+
+/* Content */
+.todo-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.todo-text {
+  font-size: 14px;
+  color: #212529;
+  line-height: 1.4;
+  flex: 1;
+  word-break: break-word;
+}
+
+.todo-text.line-through {
+  text-decoration: line-through;
+  color: #adb5bd;
+}
+
+.notion-link {
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.todo-item:hover .notion-link {
+  opacity: 1;
+}
+
+.notion-link:hover {
+  transform: scale(1.15);
+}
+
+/* Meta info */
+.todo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.priority-badge {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+}
+
+.due-date {
+  font-size: 11px;
+  color: #868e96;
+}
+
+.due-date.overdue {
+  color: #e03131;
+  font-weight: 600;
+}
+
+.tag-badge {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  background: #e7f5ff;
+  color: #1971c2;
+}

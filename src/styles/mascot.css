@@ -1,0 +1,78 @@
+.mascot-container {
+  width: 180px;
+  height: 214px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 100;
+}
+
+.mascot-container:hover {
+  transform: scale(1.1);
+}
+
+.mascot-container.mascot-active {
+  transform: scale(1.05);
+}
+
+.mascot-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+}
+
+/* Badge */
+.mascot-badge {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  background: #ff6b6b;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(255, 107, 107, 0.4);
+}
+
+/* Speech bubble */
+.mascot-speech {
+  position: absolute;
+  bottom: 220px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.2s ease;
+}
+
+.mascot-speech::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid white;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
