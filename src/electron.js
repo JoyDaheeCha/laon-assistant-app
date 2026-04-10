@@ -106,6 +106,31 @@ ipcMain.handle('auth:logout', () => {
   return { success: true };
 });
 
+async function addSampleData(notion, databaseId) {
+  console.log('[autoSetup] Adding sample data...');
+  const sampleTodos = [
+    { name: '프로젝트 기획서 작성', status: 'Not started', priority: 'High', tags: ['work'] },
+    { name: '운동 30분 하기', status: 'Not started', priority: 'Medium', tags: ['health'] },
+    { name: '디자인 리뷰 미팅', status: 'In progress', priority: 'High', tags: ['work'] },
+    { name: 'React 공부하기', status: 'In progress', priority: 'Medium', tags: ['study'] },
+    { name: '장보기 목록 정리', status: 'Done', priority: 'Low', tags: ['daily'] },
+    { name: '이메일 정리', status: 'Done', priority: 'Low', tags: ['work'] },
+  ];
+
+  for (const todo of sampleTodos) {
+    await notion.pages.create({
+      parent: { database_id: databaseId },
+      properties: {
+        Name: { title: [{ text: { content: todo.name } }] },
+        Status: { status: { name: todo.status } },
+        Priority: { select: { name: todo.priority } },
+        Tags: { multi_select: todo.tags.map((t) => ({ name: t })) },
+      },
+    });
+  }
+  console.log('[autoSetup] Sample data added');
+}
+
 ipcMain.handle('db:autoSetup', async () => {
   const notion = getNotionClient();
   if (!notion) return { success: false, error: 'Not authenticated' };
@@ -123,6 +148,14 @@ ipcMain.handle('db:autoSetup', async () => {
     if (found) {
       console.log('[autoSetup] Found existing database:', found.id);
       credentialStore.saveDatabase(found.id, 'Laon Focus TODO');
+
+      // Add sample data if database is empty
+      const items = await notion.databases.query({ database_id: found.id, page_size: 1 });
+      if (items.results.length === 0) {
+        console.log('[autoSetup] Database is empty, adding sample data...');
+        await addSampleData(notion, found.id);
+      }
+
       return { success: true, databaseName: 'Laon Focus TODO' };
     }
 
@@ -191,29 +224,8 @@ ipcMain.handle('db:autoSetup', async () => {
 
     console.log('[autoSetup] Database created:', db.id);
 
-    // 4. Add sample data (2 per status)
-    console.log('[autoSetup] Adding sample data...');
-    const sampleTodos = [
-      { name: '프로젝트 기획서 작성', status: 'Not started', priority: 'High', tags: ['work'] },
-      { name: '운동 30분 하기', status: 'Not started', priority: 'Medium', tags: ['health'] },
-      { name: '디자인 리뷰 미팅', status: 'In progress', priority: 'High', tags: ['work'] },
-      { name: 'React 공부하기', status: 'In progress', priority: 'Medium', tags: ['study'] },
-      { name: '장보기 목록 정리', status: 'Done', priority: 'Low', tags: ['daily'] },
-      { name: '이메일 정리', status: 'Done', priority: 'Low', tags: ['work'] },
-    ];
-
-    for (const todo of sampleTodos) {
-      await notion.pages.create({
-        parent: { database_id: db.id },
-        properties: {
-          Name: { title: [{ text: { content: todo.name } }] },
-          Status: { status: { name: todo.status } },
-          Priority: { select: { name: todo.priority } },
-          Tags: { multi_select: todo.tags.map((t) => ({ name: t })) },
-        },
-      });
-    }
-    console.log('[autoSetup] Sample data added');
+    // 4. Add sample data
+    await addSampleData(notion, db.id);
 
     credentialStore.saveDatabase(db.id, 'Laon Focus TODO');
     return { success: true, databaseName: 'Laon Focus TODO' };
