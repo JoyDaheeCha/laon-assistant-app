@@ -2,11 +2,10 @@
   width: 180px;
   height: 214px;
   position: absolute;
-  left: 0;
-  bottom: 0;
   cursor: pointer;
   transition: transform 0.2s ease;
   z-index: 100;
+  user-select: none;
 }
 
 .mascot-container:hover {

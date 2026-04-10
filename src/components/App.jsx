@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import LaonMascot from './LaonMascot';
 import TodoList from './TodoList';
 import SetupScreen from './SetupScreen';
@@ -14,6 +14,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState('all');
   const [error, setError] = useState(null);
+  const [mascotPos, setMascotPos] = useState({ x: 0, y: 0 });
 
   // Check auth status on mount
   useEffect(() => {
@@ -119,10 +120,17 @@ export default function App() {
           onClick={handleToggle}
           isOpen={isOpen}
           activeTodoCount={activeTodoCount}
+          position={mascotPos}
+          onDrag={setMascotPos}
         />
       </div>
       {isOpen && (
-        <div className="todo-panel-wrapper" onMouseEnter={handleMouseEnterUI} onMouseLeave={handleMouseLeaveUI}>
+        <div
+          className="todo-panel-wrapper"
+          style={{ left: mascotPos.x, bottom: mascotPos.y + 214 }}
+          onMouseEnter={handleMouseEnterUI}
+          onMouseLeave={handleMouseLeaveUI}
+        >
           <TodoList
             todos={filteredTodos}
             filter={filter}

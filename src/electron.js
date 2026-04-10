@@ -24,14 +24,11 @@ function createWindow() {
   const { width: screenWidth, height: screenHeight } = display.workAreaSize;
   const { y: workAreaY } = display.workArea;
 
-  const winWidth = 480;
-  const winHeight = 800;
-
   mainWindow = new BrowserWindow({
-    width: winWidth,
-    height: winHeight,
+    width: screenWidth,
+    height: screenHeight,
     x: 0,
-    y: workAreaY + screenHeight - winHeight,
+    y: workAreaY,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -49,7 +46,7 @@ function createWindow() {
 
   // Force exact position after window is ready
   mainWindow.once('ready-to-show', () => {
-    mainWindow.setPosition(0, workAreaY + screenHeight - winHeight);
+    mainWindow.setPosition(0, workAreaY);
   });
 
   // Click-through: transparent areas pass clicks to desktop
@@ -73,8 +70,7 @@ function createWindow() {
     const pos = mainWindow.getPosition();
     const size = mainWindow.getSize();
     console.log(`Window position: x=${pos[0]}, y=${pos[1]}, w=${size[0]}, h=${size[1]}`);
-    console.log(`WorkArea: y=${workAreaY}, h=${screenHeight}`);
-    console.log(`Expected bottom: ${workAreaY + screenHeight}, window bottom: ${pos[1] + size[1]}`);
+    console.log(`WorkArea: y=${workAreaY}, w=${screenWidth}, h=${screenHeight}`);
   });
 }
 
