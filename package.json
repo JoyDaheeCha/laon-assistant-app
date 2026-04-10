@@ -6,7 +6,7 @@
   "scripts": {
     "react-start": "webpack serve --mode development --config webpack.config.js",
     "react-build": "webpack --mode production --config webpack.config.js",
-    "electron-start": "electron .",
+    "electron-start": "node scripts/patch-electron-name.js && electron .",
     "dev": "concurrently \"npm run react-start\" \"wait-on http://localhost:3000 && npm run electron-start\"",
     "build": "npm run react-build && electron-builder",
     "create-sample-data": "node scripts/create-sample-data.js"

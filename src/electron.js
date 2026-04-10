@@ -317,6 +317,7 @@ ipcMain.handle('window:toggleVisibility', () => {
 // --- App Lifecycle ---
 
 app.whenReady().then(() => {
+
   // macOS Dock icon
   const iconPath = path.join(__dirname, '..', 'public', 'laon_icon.png');
   const dockIcon = nativeImage.createFromPath(iconPath);
