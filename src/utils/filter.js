@@ -4,7 +4,7 @@ export function filterAndSort(todos, filter) {
   let filtered = todos;
 
   if (filter === 'active') {
-    filtered = todos.filter((t) => t.status !== 'Done');
+    filtered = todos.filter((t) => t.status === 'In progress');
   } else if (filter === 'done') {
     filtered = todos.filter((t) => t.status === 'Done');
   }

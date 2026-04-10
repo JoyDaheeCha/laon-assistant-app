@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, Tray, nativeImage, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, Tray, nativeImage, shell, dialog } = require('electron');
 const path = require('path');
 require('dotenv').config();
 
@@ -292,6 +292,15 @@ ipcMain.on('set-ignore-mouse', (_event, ignore) => {
       mainWindow.setIgnoreMouseEvents(false);
     }
   }
+});
+
+ipcMain.handle('dialog:alert', (_event, message) => {
+  dialog.showMessageBoxSync(mainWindow, {
+    type: 'info',
+    title: 'Laon Focus',
+    message,
+    buttons: ['확인'],
+  });
 });
 
 ipcMain.handle('notion:openPage', (_event, url) => {

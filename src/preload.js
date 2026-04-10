@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('laonAPI', {
     ipcRenderer.invoke('notion:updateStatus', { pageId, status }),
   openPage: (url) => ipcRenderer.invoke('notion:openPage', url),
 
+  // Dialog
+  showAlert: (message) => ipcRenderer.invoke('dialog:alert', message),
+
   // Window
   toggleVisibility: () => ipcRenderer.invoke('window:toggleVisibility'),
   setIgnoreMouse: (ignore) => ipcRenderer.send('set-ignore-mouse', ignore),

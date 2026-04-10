@@ -83,11 +83,11 @@ export default function App() {
     window.laonAPI.openPage(url);
   };
 
-  const handleDisconnect = async () => {
-    await window.laonAPI.logout();
-    setTodos([]);
-    setIsOpen(false);
-    setAuthState('setup');
+  const handleSettingsClick = async () => {
+    const status = await window.laonAPI.getAuthStatus();
+    if (status.configured) {
+      window.laonAPI.showAlert('이미 연결되어있습니다');
+    }
   };
 
   const filteredTodos = filterAndSort(todos, filter);
@@ -130,7 +130,7 @@ export default function App() {
             onStatusChange={handleStatusChange}
             onOpenPage={handleOpenPage}
             onRefresh={fetchTodos}
-            onDisconnect={handleDisconnect}
+            onDisconnect={handleSettingsClick}
             isLoading={isLoading}
             error={error}
           />
