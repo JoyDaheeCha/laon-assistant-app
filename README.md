@@ -66,8 +66,8 @@ src/
 ### 2. 프로젝트 설정
 
 ```bash
-git clone https://github.com/JoyDaheeCha/laon-focus-app.git
-cd laon-focus-app
+git clone https://github.com/JoyDaheeCha/laon-assistant-app.git
+cd laon-assistant-app
 npm install
 
 cp .env.example .env
